@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - AM Hospital</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="brand">🏥 AM Hospital</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="departments.html">Departments</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="smart-doctor.html">Smart Doctor</a>
+            <a href="medicine-reminder.html">Medicine Reminder</a>
+            <a href="contact.html">Contact</a>
+            <a href="register.html" class="btn-nav">Book Appointment</a>
+        </div>
+    </nav>
+
+    <main class="section">
+        <div class="section-header">
+            <h2>Book a Consultation</h2>
+            <p>Fill out the details below to lock in your appointment slot.</p>
+        </div>
+
+        <div class="form-container">
+            <form id="appointmentForm" novalidate>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input class="form-control" type="text" id="name" placeholder="John Doe" pattern="[\p{L}][\p{L}\p{M} .'\x2d]*" title="Use letters, spaces, periods, apostrophes, or hyphens." required aria-describedby="name-error">
+                    <p class="field-error" id="name-error" role="alert"></p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input class="form-control" type="number" id="age" placeholder="28" min="1" required aria-describedby="age-error">
+                        <p class="field-error" id="age-error" role="alert"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="blood">Blood Group</label>
+                        <select class="form-control" id="blood" required aria-describedby="blood-error">
+                            <option value="">Select</option>
+                            <option>A+</option><option>A-</option>
+                            <option>B+</option><option>B-</option>
+                            <option>O+</option><option>O-</option>
+                            <option>AB+</option><option>AB-</option>
+                        </select>
+                        <p class="field-error" id="blood-error" role="alert"></p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input class="form-control" type="tel" id="phone" placeholder="+91 98765 43210" pattern="(\+91[ \x2d]?)?[6-9][0-9]{4}[ \x2d]?[0-9]{5}" title="Enter a 10-digit mobile number, optionally prefixed with +91." required aria-describedby="phone-error">
+                        <p class="field-error" id="phone-error" role="alert"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Preferred Date</label>
+                        <input class="form-control" type="date" id="date" required aria-describedby="date-error">
+                        <p class="field-error" id="date-error" role="alert"></p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="department">Specialist Department</label>
+                    <select class="form-control" id="department" required aria-describedby="department-error">
+                        <option value="">Select Department</option>
+                        <option>Cardiology</option>
+                        <option>Orthopedics</option>
+                        <option>Dental Care</option>
+                        <option>Neurology</option>
+                        <option>Pediatrics</option>
+                        <option>General Consultation</option>
+                    </select>
+                    <p class="field-error" id="department-error" role="alert"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Symptoms / Health Concerns</label>
+                    <textarea class="form-control" id="message" rows="3" placeholder="Briefly describe your symptoms..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn-primary" style="flex: 1; justify-content: center;">Confirm Appointment</button>
+                    <button type="reset" class="btn-secondary">Reset</button>
+                </div>
+            </form>
+
+            <div class="appointment-notification" id="appointmentNotification" role="status" aria-live="polite" hidden>
+                <div class="notification-check" aria-hidden="true">✓</div>
+                <div>
+                    <strong>Your appointment was successfully booked!</strong>
+                    <p id="appointmentNotificationMessage"></p>
+                </div>
+                <button class="notification-close" type="button" aria-label="Dismiss confirmation">&times;</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 AM Hospital | Caring for You ❤️</p>
+    </footer>
+
+    <script>
+        // Disable past dates for booking
+        document.getElementById('date').min = new Date().toISOString().split('T')[0];
+
+        const requestedDepartment = new URLSearchParams(window.location.search).get('department');
+        const departmentField = document.getElementById('department');
+        if (requestedDepartment) {
+            const matchingDepartment = Array.from(departmentField.options).find((option) =>
+                option.value.toLowerCase() === requestedDepartment.trim().toLowerCase()
+            );
+            if (matchingDepartment) departmentField.value = matchingDepartment.value;
+        }
+
+        const appointmentForm = document.getElementById('appointmentForm');
+        const appointmentNotification = document.getElementById('appointmentNotification');
+        const appointmentNotificationMessage = document.getElementById('appointmentNotificationMessage');
+        const notificationClose = appointmentNotification.querySelector('.notification-close');
+        const fields = ['name', 'age', 'blood', 'phone', 'date', 'department'];
+
+        function validateField(field) {
+            const error = document.getElementById(`${field.id}-error`);
+            let message = '';
+
+            if (!field.value.trim()) {
+                message = 'This field is required.';
+            } else if (field.id === 'name' && !/^[\p{L}][\p{L}\p{M} .'-]*$/u.test(field.value.trim())) {
+                message = 'Use letters, spaces, periods, apostrophes, or hyphens only.';
+            } else if (field.id === 'age' && (Number(field.value) < 1 || Number(field.value) > 120)) {
+                message = 'Enter an age between 1 and 120.';
+            } else if (field.id === 'phone' && !/^(?:\+91[ \x2d]?)?[6-9][0-9]{4}[ \x2d]?[0-9]{5}$/.test(field.value.trim())) {
+                message = 'Enter a valid 10-digit mobile number, optionally prefixed with +91.';
+            } else if (field.id === 'date' && field.value < field.min) {
+                message = 'Choose today or a future date.';
+            }
+
+            field.setCustomValidity(message);
+            field.setAttribute('aria-invalid', String(Boolean(message)));
+            error.textContent = message;
+            return !message;
+        }
+
+        fields.forEach((fieldId) => {
+            document.getElementById(fieldId).addEventListener('blur', (event) => validateField(event.target));
+        });
+
+        appointmentForm.addEventListener('reset', () => {
+            fields.forEach((fieldId) => {
+                const field = document.getElementById(fieldId);
+                field.setCustomValidity('');
+                field.removeAttribute('aria-invalid');
+                document.getElementById(`${fieldId}-error`).textContent = '';
+            });
+        });
+
+        appointmentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const validFields = fields.map((fieldId) => validateField(document.getElementById(fieldId)));
+            if (!validFields.every(Boolean)) {
+                document.getElementById(fields[validFields.indexOf(false)]).focus();
+                return;
+            }
+            const name = document.getElementById('name').value;
+            const dept = document.getElementById('department').value;
+            appointmentNotificationMessage.textContent = `Thank you, ${name}. Your ${dept} consultation has been scheduled.`;
+            appointmentNotification.hidden = false;
+            this.reset();
+            window.setTimeout(() => {
+                appointmentNotification.hidden = true;
+            }, 6500);
+        });
+
+        notificationClose.addEventListener('click', () => {
+            appointmentNotification.hidden = true;
+        });
+    </script>
+</body>
+</html>

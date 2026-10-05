@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Reminder - AM Hospital</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="brand">🏥 AM Hospital</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="departments.html">Departments</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="smart-doctor.html">Smart Doctor</a>
+            <a href="medicine-reminder.html" class="active">Medicine Reminder</a>
+            <a href="contact.html">Contact</a>
+            <a href="register.html" class="btn-nav">Book Appointment</a>
+        </div>
+    </nav>
+
+    <main class="section">
+        <div class="section-header">
+            <h2>Medicine Reminder</h2>
+            <p>Set reminders for your morning, afternoon, and night medicines.</p>
+        </div>
+
+        <div class="session-bar">
+            <span>Reminder mode: <strong id="currentUserName">Guest</strong></span>
+        </div>
+
+        <div class="form-container" style="max-width: 760px;">
+            <form id="reminderForm">
+                <div class="form-group">
+                    <label for="medicineName">Medicine name</label>
+                    <input class="form-control" type="text" id="medicineName" placeholder="For example: Vitamin D" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="medicinePeriod">When to take it</label>
+                        <select class="form-control" id="medicinePeriod" required>
+                            <option value="Morning">Morning</option>
+                            <option value="Afternoon">Afternoon</option>
+                            <option value="Night">Night</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Reminder time</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+                            <select class="form-control" id="medicineHour" aria-label="Hour" required></select>
+                            <select class="form-control" id="medicineMinute" aria-label="Minute" required></select>
+                            <select class="form-control" id="medicineAmPm" aria-label="AM or PM" required>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Add Reminder</button>
+            </form>
+        </div>
+
+        <section style="max-width: 760px; margin: 3rem auto 0;">
+            <div class="section-header" style="margin-bottom: 1.5rem;">
+                <h2>Your Reminders</h2>
+                <p id="reminderStatus">Your reminders will appear here.</p>
+            </div>
+            <div id="reminderList"></div>
+        </section>
+        <dialog class="reminder-delete-dialog" id="deleteReminderDialog" aria-labelledby="deleteReminderTitle" aria-describedby="deleteReminderMessage">
+            <h2 id="deleteReminderTitle">Delete this reminder?</h2>
+            <p id="deleteReminderMessage"></p>
+            <div class="reminder-delete-actions">
+                <button class="btn-secondary" id="cancelReminderDelete" type="button">Keep reminder</button>
+                <button class="btn-primary" id="confirmReminderDelete" type="button">Delete</button>
+            </div>
+        </dialog>
+    </main>
+
+    <footer>
+        <p>© 2026 AM Hospital | Caring for You ❤️</p>
+    </footer>
+
+    <script>
+        const reminderForm = document.getElementById('reminderForm');
+        const reminderList = document.getElementById('reminderList');
+        const reminderStatus = document.getElementById('reminderStatus');
+        const medicineHour = document.getElementById('medicineHour');
+        const medicineMinute = document.getElementById('medicineMinute');
+        const medicineAmPm = document.getElementById('medicineAmPm');
+        const currentUserName = document.getElementById('currentUserName');
+        const deleteReminderDialog = document.getElementById('deleteReminderDialog');
+        const deleteReminderMessage = document.getElementById('deleteReminderMessage');
+        const cancelReminderDelete = document.getElementById('cancelReminderDelete');
+        const confirmReminderDelete = document.getElementById('confirmReminderDelete');
+        let pendingDeleteIndex = null;
+
+        const currentUser = JSON.parse(localStorage.getItem('amHospitalLoggedInUser') || 'null') || {
+            username: 'guest',
+            name: 'Guest'
+        };
+
+        const storageKey = `amHospitalReminders_${currentUser.username}`;
+        const legacyStorageKey = 'amHospitalReminders';
+        let reminders = JSON.parse(localStorage.getItem(storageKey) || localStorage.getItem(legacyStorageKey) || '[]');
+
+        if (!localStorage.getItem(storageKey) && localStorage.getItem(legacyStorageKey)) {
+            localStorage.setItem(storageKey, localStorage.getItem(legacyStorageKey));
+        }
+
+        if (currentUserName) {
+            currentUserName.textContent = currentUser.name || currentUser.username;
+        }
+
+        for (let hour = 1; hour <= 12; hour += 1) {
+            medicineHour.add(new Option(String(hour), String(hour)));
+        }
+        for (let minute = 0; minute < 60; minute += 1) {
+            const minuteValue = String(minute).padStart(2, '0');
+            medicineMinute.add(new Option(minuteValue, minuteValue));
+        }
+
+        function saveReminders() {
+            localStorage.setItem(storageKey, JSON.stringify(reminders));
+            localStorage.setItem(legacyStorageKey, JSON.stringify(reminders));
+        }
+
+        function formatTime(time24) {
+            const [hourText, minuteText] = time24.split(':');
+            const hour24 = Number(hourText);
+            const period = hour24 >= 12 ? 'PM' : 'AM';
+            const hour12 = hour24 % 12 || 12;
+            return `${hour12}:${minuteText} ${period}`;
+        }
+
+        function renderReminders() {
+            reminderList.innerHTML = '';
+            reminderStatus.textContent = reminders.length ? `${reminders.length} reminder${reminders.length === 1 ? '' : 's'} saved for ${currentUser.name || currentUser.username}.` : 'Your reminders will appear here.';
+
+            reminders.forEach((reminder, index) => {
+                const item = document.createElement('article');
+                item.className = 'card';
+                item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; padding: 1.5rem 2rem;';
+                item.innerHTML = `
+                    <div>
+                        <h3>${reminder.name}</h3>
+                        <p style="color: var(--text-muted);">${reminder.period} at <strong>${formatTime(reminder.time)}</strong></p>
+                    </div>
+                    <button type="button" class="btn-secondary delete-reminder" data-index="${index}">Delete</button>
+                `;
+                reminderList.appendChild(item);
+            });
+        }
+
+        function requestNotifications() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        function checkReminders() {
+            const currentTime = new Date().toTimeString().slice(0, 5);
+            const today = new Date().toISOString().slice(0, 10);
+
+            reminders.forEach(reminder => {
+                if (reminder.time === currentTime && reminder.lastAlert !== today) {
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification(`Medicine reminder: ${reminder.name}`, { body: `Time for your ${reminder.period.toLowerCase()} medicine.` });
+                    } else {
+                        alert(`Medicine reminder: Take ${reminder.name} now (${reminder.period}).`);
+                    }
+                    reminder.lastAlert = today;
+                    saveReminders();
+                }
+            });
+        }
+
+        reminderForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const medicineName = document.getElementById('medicineName').value.trim();
+            if (!medicineName) return;
+
+            reminders.push({
+                name: medicineName,
+                period: document.getElementById('medicinePeriod').value,
+                time: (() => {
+                    const selectedHour = Number(medicineHour.value) % 12;
+                    const hour24 = medicineAmPm.value === 'PM' ? selectedHour + 12 : selectedHour;
+                    return `${String(hour24).padStart(2, '0')}:${medicineMinute.value}`;
+                })(),
+                lastAlert: ''
+            });
+            saveReminders();
+            requestNotifications();
+            reminderForm.reset();
+            renderReminders();
+        });
+
+        reminderList.addEventListener('click', function (event) {
+            const deleteButton = event.target.closest('.delete-reminder');
+            if (!deleteButton) return;
+
+            const reminderIndex = Number(deleteButton.dataset.index);
+            const reminder = reminders[reminderIndex];
+            if (!reminder) return;
+
+            pendingDeleteIndex = reminderIndex;
+            deleteReminderMessage.textContent = `Are you sure you want to delete the reminder for ${reminder.name}?`;
+            deleteReminderDialog.showModal();
+        });
+
+        cancelReminderDelete.addEventListener('click', () => deleteReminderDialog.close());
+        deleteReminderDialog.addEventListener('close', () => {
+            pendingDeleteIndex = null;
+        });
+
+        confirmReminderDelete.addEventListener('click', () => {
+            if (pendingDeleteIndex === null) return;
+
+            reminders.splice(pendingDeleteIndex, 1);
+            saveReminders();
+            renderReminders();
+            deleteReminderDialog.close();
+        });
+
+        renderReminders();
+        setInterval(checkReminders, 30000);
+    </script>
+</body>
+</html>

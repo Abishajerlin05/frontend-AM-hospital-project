@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Doctor - AM Hospital</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="brand">🏥 AM Hospital</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="departments.html">Departments</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="smart-doctor.html" class="active">Smart Doctor</a>
+                <a href="medicine-reminder.html">Medicine Reminder</a>
+            <a href="contact.html">Contact</a>
+            <a href="register.html" class="btn-nav">Book Appointment</a>
+        </div>
+    </nav>
+
+    <main class="section">
+        <div class="section-header">
+            <h2>Find the Right Doctor</h2>
+            <p>Tell us what you are experiencing and we will suggest the most suitable specialist.</p>
+        </div>
+
+        <div class="form-container" style="max-width: 760px;">
+            <form id="smartDoctorForm">
+                <div class="form-group">
+                    <label for="problem">What problem are you experiencing?</label>
+                    <textarea class="form-control" id="problem" rows="5" placeholder="For example: I have chest pain and shortness of breath" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Find My Doctor</button>
+            </form>
+        </div>
+
+        <section id="recommendations" style="max-width: 1100px; margin: 3rem auto 0; display: none;">
+            <div class="section-header" style="margin-bottom: 2rem;">
+                <h2 id="recommendationTitle">Recommended Doctors</h2>
+                <p id="recommendationMessage"></p>
+            </div>
+            <div class="grid-3" id="doctorResults"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 AM Hospital | Caring for You ❤️</p>
+    </footer>
+
+    <script>
+        const doctors = [
+            {
+                name: 'Dr. Ananya Ray',
+                role: 'Cardiologist',
+                department: 'Cardiology',
+                availability: 'Available today',
+                hours: 'Mon - Fri: 9:00 AM - 1:00 PM',
+                avatar: '👩‍⚕️',
+                keywords: ['chest', 'heart', 'breath', 'breathing', 'blood pressure', 'palpitation', 'heartbeat']
+            },
+            {
+                name: 'Dr. Rahul Menon',
+                role: 'Orthopedic Surgeon',
+                department: 'Orthopedics',
+                availability: 'Available today',
+                hours: 'Mon - Sat: 10:00 AM - 2:00 PM',
+                avatar: '👨‍⚕️',
+                keywords: ['bone', 'joint', 'back', 'neck', 'knee', 'shoulder', 'fracture', 'muscle', 'pain']
+            },
+            {
+                name: 'Dr. Meera Iyer',
+                role: 'Neurologist',
+                department: 'Neurology',
+                availability: 'Available tomorrow',
+                hours: 'Tue - Fri: 2:00 PM - 6:00 PM',
+                avatar: '👩‍⚕️',
+                keywords: ['headache', 'migraine', 'dizzy', 'dizziness', 'seizure', 'memory', 'nerve', 'numbness']
+            },
+            {
+                name: 'Dr. Vivek Sharma',
+                role: 'Pediatrician',
+                department: 'Pediatrics',
+                availability: 'Available today',
+                hours: 'Mon - Fri: 4:00 PM - 8:00 PM',
+                avatar: '👨‍⚕️',
+                keywords: ['child', 'baby', 'infant', 'kid', 'fever', ' cough', 'cold']
+            }
+        ];
+
+        const form = document.getElementById('smartDoctorForm');
+        const problemInput = document.getElementById('problem');
+        const recommendations = document.getElementById('recommendations');
+        const results = document.getElementById('doctorResults');
+        const message = document.getElementById('recommendationMessage');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const problem = problemInput.value.trim().toLowerCase();
+            const matches = doctors.filter(doctor => doctor.keywords.some(keyword => problem.includes(keyword.trim())));
+
+            recommendations.style.display = 'block';
+            results.innerHTML = '';
+
+            if (matches.length === 0) {
+                message.textContent = 'We could not find an exact match. A general consultation can help you choose the right specialist.';
+                results.innerHTML = `
+                    <article class="doctor-card">
+                        <div class="doctor-avatar">👨‍⚕️</div>
+                        <h3>General Consultation</h3>
+                        <p>Our care team can review your concern and guide you.</p>
+                        <a href="register.html?department=General%20Consultation" class="btn-primary" style="display: inline-block; margin-top: 1.2rem;">Book Consultation</a>
+                    </article>
+                `;
+                return;
+            }
+
+            message.textContent = 'Based on the words in your description, these specialists may be able to help.';
+            results.innerHTML = matches.map(doctor => `
+                <article class="doctor-card">
+                    <div class="doctor-avatar">${doctor.avatar}</div>
+                    <h3>${doctor.name}</h3>
+                    <p>${doctor.role}</p>
+                    <span class="badge">${doctor.availability}</span>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">${doctor.hours}</p>
+                    <a href="register.html?department=${encodeURIComponent(doctor.department)}" class="btn-primary" style="display: inline-block; margin-top: 1.2rem;">Book Appointment</a>
+                </article>
+            `).join('');
+        });
+    </script>
+</body>
+</html>

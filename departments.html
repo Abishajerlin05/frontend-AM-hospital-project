@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departments - AM Hospital</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="brand">🏥 AM Hospital</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="departments.html" class="active">Departments</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="smart-doctor.html">Smart Doctor</a>
+            <a href="medicine-reminder.html">Medicine Reminder</a>
+            <a href="contact.html">Contact</a>
+            <a href="register.html" class="btn-nav">Book Appointment</a>
+        </div>
+    </nav>
+
+    <!-- Departments Section -->
+    <main class="section">
+        <div class="section-header">
+            <h2>Our Specialized Departments</h2>
+            <p>Click on any department to view specialized doctors and advanced hospital technology.</p>
+        </div>
+
+        <div class="grid-3" id="departmentGrid">
+            <!-- Cardiology -->
+            <div class="card clickable-card dept-card" onclick="openDeptDetails('cardiology')">
+                <img class="dept-image" src="https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80" alt="Cardiology department image">
+                <h3>Cardiology</h3>
+                <p>Expert care for heart health, diagnostic ECGs, intensive cardiac treatments, and prevention.</p>
+                <span class="click-hint">Click to explore details ➔</span>
+            </div>
+
+            <!-- Orthopedics -->
+            <div class="card clickable-card dept-card" onclick="openDeptDetails('orthopedics')">
+                <img class="dept-image" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80" alt="Orthopedics department image">
+                <h3>Orthopedics</h3>
+                <p>Advanced treatment for bones, joints, sports fractures, and specialized physical therapy.</p>
+                <span class="click-hint">Click to explore details ➔</span>
+            </div>
+
+            <!-- Dental Care -->
+            <div class="card clickable-card dept-card" onclick="openDeptDetails('dental')">
+                <img class="dept-image" src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=900&q=80" alt="Dental care image">
+                <h3>Dental Care</h3>
+                <p>Comprehensive oral healthcare, cosmetic dentistry, painless root canals, and hygiene maintenance.</p>
+                <span class="click-hint">Click to explore details ➔</span>
+            </div>
+
+            <!-- Neurology -->
+            <div class="card clickable-card dept-card" onclick="openDeptDetails('neurology')">
+                <img class="dept-image" src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=900&q=80" alt="Neurology department image">
+                <h3>Neurology</h3>
+                <p>Specialized treatments for brain disorders, stroke care, neuro-rehab, and nervous system health.</p>
+                <span class="click-hint">Click to explore details ➔</span>
+            </div>
+
+            <!-- Pediatrics -->
+            <div class="card clickable-card dept-card" onclick="openDeptDetails('pediatrics')">
+                <img class="dept-image" src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=900&q=80" alt="Pediatrics department image">
+                <h3>Pediatrics</h3>
+                <p>Compassionate care for infants, routine child immunizations, and developmental health monitoring.</p>
+                <span class="click-hint">Click to explore details ➔</span>
+            </div>
+
+            <!-- Ophthalmology -->
+            <div class="card clickable-card dept-card" onclick="openDeptDetails('ophthalmology')">
+                <img class="dept-image" src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=80" alt="Ophthalmology department image">
+                <h3>Ophthalmology</h3>
+                <p>Complete vision checkups, laser eye procedures, cataract operations, and retina care.</p>
+                <span class="click-hint">Click to explore details ➔</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Popup for Details -->
+    <div class="modal-overlay" id="deptModal" onclick="closeOnOverlay(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeDeptDetails()">&times;</button>
+            <div id="modalBody">
+                <!-- Dynamically Injected Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 AM Hospital | Caring for You ❤️</p>
+    </footer>
+
+    <!-- Interactive Data Script -->
+    <script>
+        const departmentData = {
+            cardiology: {
+                title: "Cardiology Department",
+                icon: "❤️",
+                overview: "Pioneering minimally invasive heart interventions and emergency cardiovascular life support.",
+                doctors: [
+                    {
+                        name: "Dr. John",
+                        role: "Senior Interventional Cardiologist",
+                        exp: "15+ Years",
+                        image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&auto=format&fit=crop&q=80"
+                    },
+                    {
+                        name: "Dr. Emily Hayes",
+                        role: "Electrophysiologist & Surgeon",
+                        exp: "10+ Years",
+                        image: "data:image/jpeg;base64,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"
+                    }
+                ],
+                technologies: [
+                    {
+                        name: "3D Optical Coherence Tomography (OCT)",
+                        desc: "High-resolution coronary imaging to accurately place stents within heart arteries.",
+                        image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=400&auto=format&fit=crop&q=80"
+                    },
+                    {
+                        name: "Advanced Digital Cath Lab",
+                        desc: "Ultra-low dose X-ray precision angiography and emergency balloon angioplasty unit.",
+                        image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&auto=format&fit=crop&q=80"
+                    }
+                ]
+            },
+            orthopedics: {
+                title: "Orthopedics & Joint Care",
+                icon: "🦴",
+                overview: "Specialized in robotic total joint replacements and sports medicine.",
+                doctors: [
+                    {
+                        name: "Dr. Sarah",
+                        role: "Chief Orthopedic Surgeon",
+                        exp: "12+ Years",
+                        image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&auto=format&fit=crop&q=80"
+                    }
+                ],
+                technologies: [
+                    {
+                        name: "Mako Robotic-Arm Assisted System",
+                        desc: "Sub-millimeter accuracy for knee and hip joint replacements ensuring rapid recovery.",
+                        image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=400&auto=format&fit=crop&q=80"
+                    }
+                ]
+            },
+            dental: {
+                title: "Advanced Dental Care",
+                icon: "🦷",
+                overview: "Digital smile design, surgical implants, and laser gum restorations.",
+                doctors: [
+                    {
+                        name: "Dr. David",
+                        role: "Maxillofacial Prosthodontist",
+                        exp: "14+ Years",
+                        image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=300&auto=format&fit=crop&q=80"
+                    }
+                ],
+                technologies: [
+                    {
+                        name: "3D Dental Cone Beam CT (CBCT)",
+                        desc: "Ultra-precise 3D structural imaging of jaw bone density and tooth root mapping.",
+                        image: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&auto=format&fit=crop&q=80"
+                    }
+                ]
+            },
+            neurology: {
+                title: "Neurology & Brain Sciences",
+                icon: "🧠",
+                overview: "24/7 acute stroke intervention, EEG diagnostics, and spine disorder treatments.",
+                doctors: [
+                    {
+                        name: "Dr. Priya",
+                        role: "Senior Consultant Neurologist",
+                        exp: "11+ Years",
+                        image: "data:image/jpeg;base64,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"
+                    }
+                ],
+                technologies: [
+                    {
+                        name: "3.0 Tesla High-Field MRI Scanner",
+                        desc: "Ultra-fast neural mapping and functional brain perfusion imaging.",
+                        image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=400&auto=format&fit=crop&q=80"
+                    }
+                ]
+            },
+            pediatrics: {
+                title: "Pediatric & Neonatal Care",
+                icon: "👶",
+                overview: "Holistic child healthcare, vaccination tracking, and dedicated NICU monitoring.",
+                doctors: [
+                    {
+                        name: "Dr. Michael Chang",
+                        role: "Pediatric Specialist & Neonatologist",
+                        exp: "8+ Years",
+                        image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&auto=format&fit=crop&q=80"
+                    }
+                ],
+                technologies: [
+                    {
+                        name: "Giraffe Neonatal Incubators",
+                        desc: "Precision micro-environment temperature and acoustic regulation for pre-term infants.",
+                        image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&auto=format&fit=crop&q=80"
+                    }
+                ]
+            },
+            ophthalmology: {
+                title: "Ophthalmology & Eye Surgery",
+                icon: "👁️",
+                overview: "Advanced vision correction, non-invasive cataract surgery, and retinal treatments.",
+                doctors: [
+                    {
+                        name: "Dr. Ananya Ray",
+                        role: "Cornea & Refractive Surgeon",
+                        exp: "13+ Years",
+                        image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&auto=format&fit=crop&q=80"
+                    }
+                ],
+                technologies: [
+                    {
+                        name: "Femtosecond Laser Platform",
+                        desc: "Blade-free cataract and refractive vision adjustments with optical precision.",
+                        image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=400&auto=format&fit=crop&q=80"
+                    }
+                ]
+            }
+        };
+
+        function openDeptDetails(deptKey) {
+            const data = departmentData[deptKey];
+            if (!data) return;
+
+            const modalBody = document.getElementById('modalBody');
+            
+            modalBody.innerHTML = `
+                <div class="modal-header">
+                    <span class="modal-icon">${data.icon}</span>
+                    <div>
+                        <h2>${data.title}</h2>
+                        <p class="modal-subtext">${data.overview}</p>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="section-title">👨‍⚕️ Specialized Doctors</h3>
+                    <div class="detail-grid">
+                        ${data.doctors.map(doc => `
+                            <div class="detail-card">
+                                <img src="${doc.image}" alt="${doc.name}" class="detail-img doctor-img">
+                                <div class="detail-info">
+                                    <h4>${doc.name}</h4>
+                                    <p class="role">${doc.role}</p>
+                                    <span class="exp-badge">${doc.exp}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="modal-section" style="margin-top: 1.8rem;">
+                    <h3 class="section-title">🔬 Advanced Medical Technology</h3>
+                    <div class="detail-grid">
+                        ${data.technologies.map(tech => `
+                            <div class="detail-card">
+                                <img src="${tech.image}" alt="${tech.name}" class="detail-img tech-img">
+                                <div class="detail-info">
+                                    <h4>${tech.name}</h4>
+                                    <p class="desc">${tech.desc}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; text-align: right;">
+                    <a href="register.html" class="btn-primary">Book Consultation with Department ➔</a>
+                </div>
+            `;
+
+            document.getElementById('deptModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeptDetails() {
+            document.getElementById('deptModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function closeOnOverlay(e) {
+            if (e.target.id === 'deptModal') {
+                closeDeptDetails();
+            }
+        }
+    </script>
+</body>
+</html>
